@@ -15092,7 +15092,7 @@ Cost_Constraint_2:0.0
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Based on the above output, the company can gain a maximum revenue of 720,000 USD by selling tickets to San Diego at the price of 378.9 USD per ticket. However, the solution is still based on the unrealistic scenario that two other flights are operated at the cost of 0 so that the average price constraint is satisfied at 200 USD with slack on the price constraint. In the following, we build a third model based on Version 1 of constraints with the added constraint that the ticket to San Diego cannot exceed 150 USD.</p>
+<p>Based on the above output, the company can gain a maximum revenue of 720,000 USD by selling tickets to San Diego at the price of 378.9 USD per ticket. However, the solution is still based on the unrealistic scenario that two other flights are operated at the cost of 0 so that the average price constraint is satisfied at 200 USD with remaining slack. In the following, we build a third model based on Version 1 of constraints with the added constraint that the ticket to San Diego cannot exceed 150 USD.</p>
 
 </div>
 </div>
@@ -15281,7 +15281,7 @@ SD_Cost_Constraint:0.0
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Based on the above output, the company can gain a maximum revenue of 285,000 USD by selling tickets to San Diego at the price of 150 USD per ticket. However, the solution is still based on the unrealistic scenario that two other flights are operated at no cost with slack on the average price constraint.</p>
-<p>To achieve more realistic solutions, the problem would benefit from specifying additional conditions related to average cost composition. Otherwise, the current version expresses the average cost constraint only in terms of revenue which in turn is based on price, so the model optimized by setting two of the input prices to zero.</p>
+<p>To achieve more realistic solutions, the problem would benefit from specifying additional conditions related to average cost composition. Otherwise, the current version expresses the average cost constraint only in terms of revenue which in turn is based on price, so the model optimizes by setting two of the input prices to zero.</p>
 
 </div>
 </div>
