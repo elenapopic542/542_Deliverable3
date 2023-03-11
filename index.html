@@ -14724,8 +14724,19 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Defining the constraints:</span>
 
+<span class="c1"># Version 1 (as stated in problem description)</span>
+<span class="c1"># Constraint 1: Average price (unweighted) is not higher than 200 USD. Below I use the reduced form of the equation: (SDP + SFP + LVP)/3&lt;=200</span>
 <span class="n">C1</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Price_Constraint"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">SDP</span> <span class="o">+</span> <span class="n">SFP</span> <span class="o">+</span> <span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span> 
+<span class="c1"># Constraint 2: The overall average cost is no more than 10 percent of revenue (unweighted). Below I use the reduced form of the equation: 0.10*1900*SDP + 0.12*700*SFP + 0.14*1000*LVP &lt;= 0.10(1900*SDP + 700*SFP + 1000*LVP), reduced to 190*SDP + 84*SFP + 140*LVP ≤ 190*SDP + 70*SFP + 100*LVP, and finally to 14*SFP + 40*LVP ≤ 0 </span>
 <span class="n">C2</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Cost_Constraint"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">14</span><span class="o">*</span><span class="n">SFP</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 
+
+<span class="c1"># Version 2 (weighted)</span>
+<span class="c1"># Constraint 1: Weighted average price is not higher than 200 USD. </span>
+<span class="c1"># Here, I use the expected value of the ticket price based on the proportion of tickets sold to each destination, as expressed in the following equation: EV(Price) = (1900*SDP + 700*SFP + 1000*LVP)/(1900 + 700 + 1000), EV(Price) &lt;= 200, (1900*SDP + 700*SFP + 1000*LVP)/3600 &lt;=200, 1900*SDP + 700*SFP + 1000*LVP &lt;=720000     </span>
+<span class="n">C1_1</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Price_Constraint_1"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">1900</span><span class="o">*</span><span class="n">SDP</span> <span class="o">+</span> <span class="mi">700</span><span class="o">*</span><span class="n">SFP</span> <span class="o">+</span> <span class="mi">1000</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">720000</span><span class="p">)</span> 
+<span class="c1"># Constraint 2: The overall weighted average cost is no more than 10 percent of revenue. Here, I use weights based on the mileage of each flight to reflect the reality that longer flights require higher costs. </span>
+<span class="c1"># The proportion between the flight mileage and overall mileage is 720/3360=0.21 for the San Diego flight, 1500/3360=0.45 for the San Francisco flight, and 1140/3360=0.34 for the Las Vegas flight; The constraint equation with weights is therefore: 0.10*1900*0.21*SDP + 0.12*700*0.45*SFP + 0.14*1000*0.34*LVP &lt;= 0.10(1900*0.21*SDP + 700*0.45*SFP + 1000*0.14*LVP), 39.9*SDP + 37.8*SFP + 47.6*LVP &lt;= 39.9*SDP + 31.5*SFP + 34*LVP, 6.3*SFP + 13.6*LVP &lt;=0    </span>
+<span class="n">C2_2</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Cost_Constraint_2"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mf">6.3</span><span class="o">*</span><span class="n">SFP</span> <span class="o">+</span> <span class="mf">13.6</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 
 </pre></div>
 
      </div>
@@ -14741,7 +14752,9 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Adding the information on constraints and objective function to the model:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># I start by determing solutions for the problem with constraints defined in Version 1 above:</span>
+
+<span class="c1"># Adding the information on constraints and objective function to the model:</span>
 
 <span class="n">model</span> <span class="o">+=</span> <span class="n">obj_func</span>
 <span class="n">model</span> <span class="o">+=</span> <span class="n">C1</span>
@@ -14899,7 +14912,371 @@ Cost_Constraint:0.0
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Based on the above output, the company can gain a maximum revenue of 1,140,000 USD by selling tickets to San Diego at the price of 600 USD per ticket. However, it has to be mentioned that this solution satisfies the average price constraint (i.e., no more than 200 USD per flight) only if the other two destinations are sold at a price of zero, which might not be a realistic scenario.</p>
+<p>Based on the above output, the company can gain a maximum revenue of 1,140,000 USD by selling tickets to San Diego at the price of 600 USD per ticket. However, it has to be mentioned that this solution satisfies the average price constraint (i.e., no more than 200 USD per flight) only if the other two destinations are sold at a price of zero so that (600+0+0)/3=200, which is not a realistic scenario. In the following I use the adjusted constraints as defined in Version 2 above.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Determing solutions for the problem with constraints defined in Version 2 above:</span>
+
+<span class="c1">#Setting-up a new model:</span>
+
+<span class="n">model2</span> <span class="o">=</span> <span class="n">LpProblem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'airline-problem2'</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LpMaximize</span><span class="p">)</span>
+
+<span class="n">model2</span> <span class="o">+=</span> <span class="n">obj_func</span>
+<span class="n">model2</span> <span class="o">+=</span> <span class="n">C1_1</span>
+<span class="n">model2</span> <span class="o">+=</span> <span class="n">C2_2</span>
+
+<span class="c1"># Solving the problem:</span>
+
+<span class="n">solver</span> <span class="o">=</span> <span class="n">COIN_CMD</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">result</span><span class="o">=</span><span class="n">model2</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the optimal solution to the problem (i.e., the optimal prices to charge for each destination):</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s2">"Optimal Result:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">model2</span><span class="o">.</span><span class="n">variables</span><span class="p">():</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"="</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">varValue</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Optimal Result:
+Las_Vegas_Price = 0.0
+San_Diego_Price = 378.94737
+San_Francisco_Price = 0.0
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the total maximum revenue:</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s2">"Total maximum revenue:"</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="n">value</span><span class="p">(</span><span class="n">model2</span><span class="o">.</span><span class="n">objective</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Total maximum revenue:
+720000.0029999999
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the slack/surplus values for each constraint in the optimization model to check if all constraints are satisfied:</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s2">"Slack/Surplus"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="n">model2</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s1">':'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">constraint</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Slack/Surplus
+Price_Constraint_1:0.0029999999096617103
+Cost_Constraint_2:0.0
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Based on the above output, the company can gain a maximum revenue of 720,000 USD by selling tickets to San Diego at the price of 378.9 USD per ticket. However, the solution is still based on the unrealistic scenario that two other flights are operated at the cost of 0 so that the average price constraint is satisfied at 200 USD with slack on the price constraint. In the following, we build a third model based on Version 1 of constraints with the added constraint that the ticket to San Diego cannot exceed 150 USD.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Defining the additional constraint:</span>
+
+<span class="n">C3</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"SD_Cost_Constraint"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">SDP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span> 
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Adding the information on the new constraint to the model that already features the constraints C1 and C2:</span>
+
+<span class="n">model</span> <span class="o">+=</span> <span class="n">C3</span>
+
+<span class="c1"># Solving the problem:</span>
+
+<span class="n">solver</span> <span class="o">=</span> <span class="n">COIN_CMD</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">result</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the optimal solution to the problem (i.e., the optimal prices to charge for each destination):</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s2">"Optimal Result:"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">():</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"="</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">varValue</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Optimal Result:
+Las_Vegas_Price = 0.0
+San_Diego_Price = 150.0
+San_Francisco_Price = 0.0
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the total maximum revenue:</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s2">"Total maximum revenue:"</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="n">value</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">objective</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Total maximum revenue:
+285000.0
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the slack/surplus values for each constraint in the optimization model to check if all constraints are satisfied:</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s2">"Slack/Surplus"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s1">':'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">constraint</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Slack/Surplus
+Price_Constraint:-450.0
+Cost_Constraint:0.0
+SD_Cost_Constraint:0.0
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Based on the above output, the company can gain a maximum revenue of 285,000 USD by selling tickets to San Diego at the price of 150 USD per ticket. However, the solution is still based on the unrealistic scenario that two other flights are operated at no cost with slack on the average price constraint.</p>
+<p>To achieve more realistic solutions, the problem would benefit from specifying additional conditions related to average cost composition. Otherwise, the current version expresses the average cost constraint only in terms of revenue which in turn is based on price, so the model optimized by setting two of the input prices to zero.</p>
 
 </div>
 </div>
