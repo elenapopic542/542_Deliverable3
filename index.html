@@ -14591,7 +14591,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Deliverable 3: "Solving optimization problems using Python"</p>
+<p>Deliverable 3</p>
 
 </div>
 </div>
@@ -14615,7 +14615,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>This assignment focuses on solving an optimization problem published on <a href="https://www.coursehero.com/study-guides/sanjacinto-finitemath1/reading-solving-standard-maximization-problems-using-the-simplex-method/">https://www.coursehero.com/study-guides/sanjacinto-finitemath1/reading-solving-standard-maximization-problems-using-the-simplex-method/</a></p>
+<h2 id="Part-1:-%22Solving-optimization-problems-using-Python%22">Part 1: "Solving optimization problems using Python"<a class="anchor-link" href="#Part-1:-%22Solving-optimization-problems-using-Python%22">&#182;</a></h2><p>This part of the assignment focuses on solving an optimization problem published on <a href="https://www.coursehero.com/study-guides/sanjacinto-finitemath1/reading-solving-standard-maximization-problems-using-the-simplex-method/">https://www.coursehero.com/study-guides/sanjacinto-finitemath1/reading-solving-standard-maximization-problems-using-the-simplex-method/</a></p>
 <p>(last accessed March 10, 2023)</p>
 
 </div>
@@ -14649,6 +14649,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <span class="kn">from</span> <span class="nn">pulp</span> <span class="kn">import</span> <span class="n">COIN_CMD</span>
 <span class="kn">from</span> <span class="nn">pulp</span> <span class="kn">import</span> <span class="n">LpConstraintGE</span> <span class="k">as</span> <span class="n">GE</span>
 <span class="kn">from</span> <span class="nn">pulp</span> <span class="kn">import</span> <span class="n">LpConstraintLE</span> <span class="k">as</span> <span class="n">LE</span>
+<span class="kn">from</span> <span class="nn">pulp</span> <span class="kn">import</span> <span class="n">LpConstraintLE</span> <span class="k">as</span> <span class="n">EQ</span>
 </pre></div>
 
      </div>
@@ -14724,24 +14725,12 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Defining the constraints:</span>
 
-<span class="c1"># Version 1 (as stated in problem description)</span>
-<span class="c1"># Constraint 1: Average price (unweighted) is not higher than 200 USD. Below I use the reduced form of the equation: (SDP + SFP + LVP)/3&lt;=200</span>
+<span class="c1"># Constraint 1: Average price is not higher than 200 USD. Below I use the reduced form of the equation: (SDP + SFP + LVP)/3&lt;=200</span>
 <span class="n">C1</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Price_Constraint"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">SDP</span> <span class="o">+</span> <span class="n">SFP</span> <span class="o">+</span> <span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span> 
-<span class="c1"># Constraint 2: The overall average cost is no more than 10 percent of revenue (unweighted). </span>
+<span class="c1"># Constraint 2: The overall average cost is no more than 10 percent of revenue </span>
 <span class="c1"># as expressed by the equation: 0.10*1900*SDP + 0.12*700*SFP + 0.14*1000*LVP &lt;= 0.10(1900*SDP + 700*SFP + 1000*LVP), </span>
 <span class="c1"># reduced to 190*SDP + 84*SFP + 140*LVP ≤ 190*SDP + 70*SFP + 100*LVP, and finally to 14*SFP + 40*LVP ≤ 0 </span>
 <span class="n">C2</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Cost_Constraint"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">14</span><span class="o">*</span><span class="n">SFP</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 
-
-<span class="c1"># Version 2 (weighted)</span>
-<span class="c1"># Constraint 1: Weighted average price is not higher than 200 USD. </span>
-<span class="c1"># Here, I use the expected value of the ticket price based on the proportion of tickets sold to each destination, </span>
-<span class="c1"># EV(Price) = (1900*SDP + 700*SFP + 1000*LVP)/(1900 + 700 + 1000), EV(Price) &lt;= 200    </span>
-<span class="n">C1_1</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Price_Constraint_1"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">1900</span><span class="o">*</span><span class="n">SDP</span> <span class="o">+</span> <span class="mi">700</span><span class="o">*</span><span class="n">SFP</span> <span class="o">+</span> <span class="mi">1000</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">720000</span><span class="p">)</span> 
-<span class="c1"># Constraint 2: The overall weighted average cost is no more than 10 percent of revenue. </span>
-<span class="c1"># Here, I use weights based on mileage to reflect the reality that longer flights require higher costs. </span>
-<span class="c1"># The proportions between flight mileage and overall mileage are 0.21, 0.45 and 0.34 for the SD, SF and LV flights respectively. </span>
-<span class="c1"># Equation with weights: 0.10*1900*0.21*SDP + 0.12*700*0.45*SFP + 0.14*1000*0.34*LVP &lt;= 0.10(1900*0.21*SDP + 700*0.45*SFP + 1000*0.14*LVP)   </span>
-<span class="n">C2_2</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Cost_Constraint_2"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mf">6.3</span><span class="o">*</span><span class="n">SFP</span> <span class="o">+</span> <span class="mf">13.6</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 
 </pre></div>
 
      </div>
@@ -14757,9 +14746,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># I start by determing solutions for the problem with constraints defined in Version 1 above:</span>
-
-<span class="c1"># Adding the information on constraints and objective function to the model:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Adding the information on constraints and objective function to the model:</span>
 
 <span class="n">model</span> <span class="o">+=</span> <span class="n">obj_func</span>
 <span class="n">model</span> <span class="o">+=</span> <span class="n">C1</span>
@@ -14768,7 +14755,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <span class="c1"># Solving the problem:</span>
 
 <span class="n">solver</span> <span class="o">=</span> <span class="n">COIN_CMD</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">result</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14917,7 +14904,12 @@ Cost_Constraint:0.0
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Based on the above output, the company can gain a maximum revenue of 1,140,000 USD by selling tickets to San Diego at the price of 600 USD per ticket. However, it has to be mentioned that this solution satisfies the average price constraint (i.e., no more than 200 USD per flight) only if the other two destinations are sold at a price of zero so that (600+0+0)/3=200, which is not a realistic scenario. In the following I use the adjusted constraints as defined in Version 2 above.</p>
+<p>Based on the above output, the company can gain a maximum revenue of 1,140,000 USD by selling tickets to San Diego at the price of 600 USD per ticket.</p>
+<p>However, it has to be mentioned that this solution satisfies the average price constraint (i.e., no more than 200 USD per flight) only if the other two destinations are operated at a price of zero so that (600+0+0)/3=200, which is not a realistic scenario.</p>
+<p>The current problem conditions express the average cost only in terms of revenue which in turn is based on price, so in the absence of other details the model optimizes the cost by setting two of the input prices to zero.</p>
+<p>In the below lines of code, I create a new model based on the original problem with adjusted and additional constraints to the following ends:</p>
+<p>a) adjust the cost constraint to 14% of revenue as opposed to the original 10%, since only the San Diego flight's cost is defined at 10% of airfare, while the cost for the other two flights are defined at 12% and 14% of airfare, which given the constraint that "overall average cost is no more than 10 percent of earned airfare" might explain the above solution generated by the algorithm to charge only on the San Diego flight. 
+b) equalize cost per mile across flights using the data on flight mileage from the original problem.</p>
 
 </div>
 </div>
@@ -14930,20 +14922,44 @@ Cost_Constraint:0.0
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Determing solutions for the problem with constraints defined in Version 2 above:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Adjusted constraints:</span>
+<span class="c1"># The overall average cost is no more than 14 percent of revenue:</span>
+<span class="n">C2_2</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Cost_Constraint_2"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">76</span><span class="o">*</span><span class="n">SDP</span> <span class="o">+</span> <span class="mi">14</span><span class="o">*</span><span class="n">SFP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">GE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># The next set of constraints use the data on mileage and set the cost per mile to be equal across flights: 0.10*SDP/720=0.12*SFP/1500=0.14*LVP/1140 </span>
+<span class="n">C3</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"CostperMile_Constraint_3"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">150</span><span class="o">*</span><span class="n">SDP</span> <span class="o">-</span> <span class="mf">86.4</span><span class="o">*</span><span class="n">SFP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">EQ</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">C4</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"CostperMile_Constraint_4"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">114</span><span class="o">*</span><span class="n">SDP</span> <span class="o">-</span> <span class="mf">100.8</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">EQ</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">C5</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"CostperMile_Constraint_5"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mf">136.8</span><span class="o">*</span><span class="n">SFP</span> <span class="o">-</span> <span class="mi">210</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">EQ</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
 
-<span class="c1">#Setting-up a new model:</span>
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Determing solutions for the problem with adjusted constraints defined above:</span>
+
+<span class="c1">#Setting-up the new model and adding information on adjusted constraints:</span>
 
 <span class="n">model2</span> <span class="o">=</span> <span class="n">LpProblem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'airline-problem2'</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LpMaximize</span><span class="p">)</span>
-
-<span class="n">model2</span> <span class="o">+=</span> <span class="n">obj_func</span>
-<span class="n">model2</span> <span class="o">+=</span> <span class="n">C1_1</span>
-<span class="n">model2</span> <span class="o">+=</span> <span class="n">C2_2</span>
+<span class="n">model2</span> <span class="o">+=</span> <span class="n">obj_func</span> <span class="c1">#same objective function as in the first model</span>
+<span class="n">model2</span> <span class="o">+=</span> <span class="n">C1</span> <span class="c1">#same average price constraint as in the first model</span>
+<span class="n">model2</span> <span class="o">+=</span> <span class="n">C2_2</span> <span class="c1">#adjusted average cost constraint</span>
+<span class="n">model2</span> <span class="o">+=</span> <span class="n">C3</span>
+<span class="n">model2</span> <span class="o">+=</span> <span class="n">C4</span>
+<span class="n">model2</span> <span class="o">+=</span> <span class="n">C5</span>
 
 <span class="c1"># Solving the problem:</span>
 
 <span class="n">solver</span> <span class="o">=</span> <span class="n">COIN_CMD</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">result</span><span class="o">=</span><span class="n">model2</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model2</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14956,7 +14972,7 @@ Cost_Constraint:0.0
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the optimal solution to the problem (i.e., the optimal prices to charge for each destination):</span>
@@ -14986,9 +15002,9 @@ Cost_Constraint:0.0
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>Optimal Result:
-Las_Vegas_Price = 0.0
-San_Diego_Price = 378.94737
-San_Francisco_Price = 0.0
+Las_Vegas_Price = 175.4746
+San_Diego_Price = 155.15649
+San_Francisco_Price = 269.36891
 </pre>
 </div>
 </div>
@@ -15002,7 +15018,7 @@ San_Francisco_Price = 0.0
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the total maximum revenue:</span>
@@ -15031,7 +15047,7 @@ San_Francisco_Price = 0.0
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>Total maximum revenue:
-720000.0029999999
+658830.1680000001
 </pre>
 </div>
 </div>
@@ -15045,7 +15061,7 @@ San_Francisco_Price = 0.0
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the slack/surplus values for each constraint in the optimization model to check if all constraints are satisfied:</span>
@@ -15075,8 +15091,11 @@ San_Francisco_Price = 0.0
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>Slack/Surplus
-Price_Constraint_1:0.0029999999096617103
-Cost_Constraint_2:0.0
+Price_Constraint:0.0
+Cost_Constraint_2:15563.05798
+CostperMile_Constraint_3:-0.0003240000041841995
+CostperMile_Constraint_4:0.00017999999909079634
+CostperMile_Constraint_5:0.000888000002305489
 </pre>
 </div>
 </div>
@@ -15092,7 +15111,19 @@ Cost_Constraint_2:0.0
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Based on the above output, the company can gain a maximum revenue of 720,000 USD by selling tickets to San Diego at the price of 378.9 USD per ticket. However, the solution is still based on the unrealistic scenario that two other flights are operated at the cost of 0 so that the average price constraint is satisfied at 200 USD with remaining slack. In the following, we build a third model based on Version 1 of constraints with the added constraint that the ticket to San Diego cannot exceed 150 USD.</p>
+<p>Based on the above output for the second model, the company can gain a maximum revenue of 658,830 USD by selling tickets to Las Vegas at the price of 175 USD, San Diego at 155 USD, and San Francisco at 269 USD per ticket. However, it is to be noted that this output violates the average cost constraint by 15563, while fully complying with the average price constraint.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Part-2:-%22Social-simulation%22">Part 2: "Social simulation"<a class="anchor-link" href="#Part-2:-%22Social-simulation%22">&#182;</a></h2><p>The following section codes the game "ROCK PAPER SCISSORS SPOCK LIZARD", and models random player/agent behavior to examine overall outcomes of the simulation.</p>
 
 </div>
 </div>
@@ -15102,12 +15133,12 @@ Cost_Constraint_2:0.0
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[84]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Defining the additional constraint:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Defining the strategies of the game:</span>
 
-<span class="n">C3</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"SD_Cost_Constraint"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">SDP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span> 
+<span class="n">strategies</span><span class="o">=</span><span class="p">[</span><span class="s1">'Rock'</span><span class="p">,</span><span class="s1">'Paper'</span><span class="p">,</span><span class="s1">'Scissors'</span><span class="p">,</span> <span class="s1">'Spock'</span><span class="p">,</span> <span class="s1">'Lizard'</span><span class="p">]</span>
 </pre></div>
 
      </div>
@@ -15120,17 +15151,56 @@ Cost_Constraint_2:0.0
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[85]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Adding the information on the new constraint to the model that already features the constraints C1 and C2:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Defining the pay-off for each combination of strategies:</span>
 
-<span class="n">model</span> <span class="o">+=</span> <span class="n">C3</span>
+<span class="n">payoff</span><span class="o">=</span><span class="p">{(</span><span class="s1">'Scissors'</span><span class="p">,</span><span class="s1">'Paper'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Paper'</span><span class="p">,</span><span class="s1">'Scissors'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Paper'</span><span class="p">,</span><span class="s1">'Rock'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Rock'</span><span class="p">,</span><span class="s1">'Paper'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Rock'</span><span class="p">,</span><span class="s1">'Lizard'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Lizard'</span><span class="p">,</span><span class="s1">'Rock'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Lizard'</span><span class="p">,</span><span class="s1">'Spock'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Spock'</span><span class="p">,</span><span class="s1">'Lizard'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Spock'</span><span class="p">,</span><span class="s1">'Scissors'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Scissors'</span><span class="p">,</span><span class="s1">'Spock'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Scissors'</span><span class="p">,</span><span class="s1">'Lizard'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Lizard'</span><span class="p">,</span><span class="s1">'Scissors'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Lizard'</span><span class="p">,</span><span class="s1">'Paper'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Paper'</span><span class="p">,</span><span class="s1">'Lizard'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Paper'</span><span class="p">,</span><span class="s1">'Spock'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Spock'</span><span class="p">,</span><span class="s1">'Paper'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Rock'</span><span class="p">,</span><span class="s1">'Paper'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Spock'</span><span class="p">,</span><span class="s1">'Rock'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Rock'</span><span class="p">,</span><span class="s1">'Spock'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Rock'</span><span class="p">,</span> <span class="s1">'Scissors'</span><span class="p">):(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Scissors'</span><span class="p">,</span> <span class="s1">'Rock'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Scissors'</span><span class="p">,</span> <span class="s1">'Scissors'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Paper'</span><span class="p">,</span> <span class="s1">'Paper'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Rock'</span><span class="p">,</span> <span class="s1">'Rock'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Lizard'</span><span class="p">,</span> <span class="s1">'Lizard'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'Spock'</span><span class="p">,</span> <span class="s1">'Spock'</span><span class="p">):(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)}</span>
+</pre></div>
 
-<span class="c1"># Solving the problem:</span>
+     </div>
+</div>
+</div>
+</div>
 
-<span class="n">solver</span> <span class="o">=</span> <span class="n">COIN_CMD</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">result</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[86]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Creating players/agents and their strategies:</span>
+
+<span class="n">Players</span><span class="o">=</span><span class="p">[{</span><span class="s1">'name'</span><span class="p">:</span><span class="s1">'Galileo'</span><span class="p">,</span><span class="s1">'score'</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s1">'strategy'</span><span class="p">:</span><span class="kc">None</span><span class="p">},</span>
+         <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span><span class="s1">'Giordano'</span><span class="p">,</span><span class="s1">'score'</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s1">'strategy'</span><span class="p">:</span><span class="kc">None</span><span class="p">}]</span>
 </pre></div>
 
      </div>
@@ -15143,14 +15213,473 @@ Cost_Constraint_2:0.0
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[87]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the optimal solution to the problem (i.e., the optimal prices to charge for each destination):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importing the choice function from the random module:</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span>
 
-<span class="nb">print</span> <span class="p">(</span><span class="s2">"Optimal Result:"</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">variables</span><span class="p">():</span>
-    <span class="nb">print</span> <span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"="</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">varValue</span><span class="p">)</span>
+<span class="c1"># Modeling random behavior - randomly selecting one of the elements in the strategies list:</span>
+<span class="n">choice</span><span class="p">(</span><span class="n">strategies</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[87]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>&#39;Rock&#39;</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[88]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Modeling a game with random selection of strategy by each player:</span>
+
+<span class="n">Players</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'strategy'</span><span class="p">]</span><span class="o">=</span><span class="n">choice</span><span class="p">(</span><span class="n">strategies</span><span class="p">)</span>
+<span class="n">Players</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'strategy'</span><span class="p">]</span><span class="o">=</span><span class="n">choice</span><span class="p">(</span><span class="n">strategies</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[89]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Examining the elements in the players' dictionaries to see their score and strategy:</span>
+
+<span class="n">Players</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[89]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[{&#39;name&#39;: &#39;Galileo&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: &#39;Rock&#39;},
+ {&#39;name&#39;: &#39;Giordano&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: &#39;Paper&#39;}]</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[90]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Players</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'strategy'</span><span class="p">],</span><span class="n">Players</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'strategy'</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[90]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>(&#39;Rock&#39;, &#39;Paper&#39;)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[91]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Retrieving the sequence of payoffs corresponding to the strategies selected by players/agents:</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">payoff</span><span class="p">[</span><span class="n">Players</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'strategy'</span><span class="p">],</span><span class="n">Players</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'strategy'</span><span class="p">]]</span>
+<span class="n">result</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[91]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>(0, 1)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[92]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Updating the scores of each player based on their payoff obtained from playing:</span>
+
+<span class="n">Players</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'score'</span><span class="p">]</span><span class="o">+=</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">Players</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">'score'</span><span class="p">]</span><span class="o">+=</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[93]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Summarizing the current players scores:</span>
+
+<span class="n">Players</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[93]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[{&#39;name&#39;: &#39;Galileo&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: &#39;Rock&#39;},
+ {&#39;name&#39;: &#39;Giordano&#39;, &#39;score&#39;: 1, &#39;strategy&#39;: &#39;Paper&#39;}]</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[94]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importing pandas to work with dataframes: </span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> 
+
+<span class="c1"># Creating a dataframe to store the scores and the strategies of players:</span>
+
+<span class="n">socialResults</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">((</span><span class="n">Players</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Players</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">socialResults</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[94]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>score</th>
+      <th>strategy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Galileo</td>
+      <td>0</td>
+      <td>Rock</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Giordano</td>
+      <td>1</td>
+      <td>Paper</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[95]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Creating a variable to store the highest score:</span>
+<span class="n">winnerScore</span><span class="o">=</span><span class="n">socialResults</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="c1"># Including only the rows where the score column is equal to winnerScore:</span>
+<span class="n">socialResults</span><span class="p">[</span><span class="n">socialResults</span><span class="o">.</span><span class="n">score</span><span class="o">==</span><span class="n">winnerScore</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[95]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>score</th>
+      <th>strategy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>Giordano</td>
+      <td>1</td>
+      <td>Paper</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[96]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Creating a list with more player names for the game:</span>
+
+<span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">'Amadeus'</span><span class="p">,</span><span class="s1">'Ludwig'</span><span class="p">,</span><span class="s1">'Frederic'</span><span class="p">,</span><span class="s1">'Antonio'</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[97]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Setting-up a list of dictionaries for each player name in the above list:</span>
+
+<span class="n">society</span><span class="o">=</span><span class="p">[{</span><span class="s1">'name'</span><span class="p">:</span><span class="n">n</span><span class="p">,</span><span class="s1">'score'</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s1">'strategy'</span><span class="p">:</span><span class="kc">None</span><span class="p">}</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[98]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importing the itertools module:</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span> 
+
+<span class="c1"># Using the combinations method to generate all possible unique pairs of elements in the society list:</span>
+
+<span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">society</span><span class="p">,</span><span class="mi">2</span><span class="p">):</span>
+    
+<span class="c1"># Printing the pairs of combinations:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15172,10 +15701,12 @@ Cost_Constraint_2:0.0
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Optimal Result:
-Las_Vegas_Price = 0.0
-San_Diego_Price = 150.0
-San_Francisco_Price = 0.0
+<pre>({&#39;name&#39;: &#39;Amadeus&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}, {&#39;name&#39;: &#39;Ludwig&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None})
+({&#39;name&#39;: &#39;Amadeus&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}, {&#39;name&#39;: &#39;Frederic&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None})
+({&#39;name&#39;: &#39;Amadeus&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}, {&#39;name&#39;: &#39;Antonio&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None})
+({&#39;name&#39;: &#39;Ludwig&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}, {&#39;name&#39;: &#39;Frederic&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None})
+({&#39;name&#39;: &#39;Ludwig&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}, {&#39;name&#39;: &#39;Antonio&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None})
+({&#39;name&#39;: &#39;Frederic&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}, {&#39;name&#39;: &#39;Antonio&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None})
 </pre>
 </div>
 </div>
@@ -15189,13 +15720,13 @@ San_Francisco_Price = 0.0
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[99]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the total maximum revenue:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Assigning each pair of combinations to the variables player1 and player2:</span>
 
-<span class="nb">print</span> <span class="p">(</span><span class="s2">"Total maximum revenue:"</span><span class="p">)</span>
-<span class="nb">print</span> <span class="p">(</span><span class="n">value</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">objective</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">player1</span><span class="p">,</span><span class="n">player2</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">society</span><span class="p">,</span><span class="mi">2</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">player1</span><span class="p">,</span><span class="n">player2</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15217,10 +15748,90 @@ San_Francisco_Price = 0.0
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Total maximum revenue:
-285000.0
+<pre>{&#39;name&#39;: &#39;Amadeus&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None} {&#39;name&#39;: &#39;Ludwig&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}
+{&#39;name&#39;: &#39;Amadeus&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None} {&#39;name&#39;: &#39;Frederic&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}
+{&#39;name&#39;: &#39;Amadeus&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None} {&#39;name&#39;: &#39;Antonio&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}
+{&#39;name&#39;: &#39;Ludwig&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None} {&#39;name&#39;: &#39;Frederic&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}
+{&#39;name&#39;: &#39;Ludwig&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None} {&#39;name&#39;: &#39;Antonio&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}
+{&#39;name&#39;: &#39;Frederic&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None} {&#39;name&#39;: &#39;Antonio&#39;, &#39;score&#39;: 0, &#39;strategy&#39;: None}
 </pre>
 </div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[100]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Resetting the society list which contains dictionaries for each player:</span>
+
+<span class="n">society</span><span class="o">=</span><span class="p">[{</span><span class="s1">'name'</span><span class="p">:</span><span class="n">n</span><span class="p">,</span><span class="s1">'score'</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s1">'strategy'</span><span class="p">:</span><span class="kc">None</span><span class="p">}</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+
+<span class="c1"># Setting-up a loop to play 100 iterations where each player randomly choses a strategy,</span>
+<span class="c1"># and the score is updated based on the results of each round:</span>
+
+<span class="k">for</span> <span class="n">aRound</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>     
+    <span class="k">for</span> <span class="n">player1</span><span class="p">,</span><span class="n">player2</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">society</span><span class="p">,</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">player1</span><span class="p">[</span><span class="s1">'strategy'</span><span class="p">]</span><span class="o">=</span><span class="n">choice</span><span class="p">(</span><span class="n">strategies</span><span class="p">)</span>
+        <span class="n">player2</span><span class="p">[</span><span class="s1">'strategy'</span><span class="p">]</span><span class="o">=</span><span class="n">choice</span><span class="p">(</span><span class="n">strategies</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">=</span><span class="n">payoff</span><span class="p">[</span><span class="n">player1</span><span class="p">[</span><span class="s1">'strategy'</span><span class="p">],</span><span class="n">player2</span><span class="p">[</span><span class="s1">'strategy'</span><span class="p">]]</span>
+        <span class="n">player1</span><span class="p">[</span><span class="s1">'score'</span><span class="p">]</span><span class="o">+=</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">player2</span><span class="p">[</span><span class="s1">'score'</span><span class="p">]</span><span class="o">+=</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[101]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Examining the final state of the simulation by looking at the contents of the society list, </span>
+<span class="c1"># which contains updated dictionaries for each player with their final scores and strategies:</span>
+
+<span class="n">society</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[101]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[{&#39;name&#39;: &#39;Amadeus&#39;, &#39;score&#39;: 125, &#39;strategy&#39;: &#39;Scissors&#39;},
+ {&#39;name&#39;: &#39;Ludwig&#39;, &#39;score&#39;: 113, &#39;strategy&#39;: &#39;Spock&#39;},
+ {&#39;name&#39;: &#39;Frederic&#39;, &#39;score&#39;: 99, &#39;strategy&#39;: &#39;Paper&#39;},
+ {&#39;name&#39;: &#39;Antonio&#39;, &#39;score&#39;: 128, &#39;strategy&#39;: &#39;Spock&#39;}]</pre>
+</div>
+
 </div>
 
 </div>
@@ -15232,14 +15843,202 @@ San_Francisco_Price = 0.0
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[102]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Printing the slack/surplus values for each constraint in the optimization model to check if all constraints are satisfied:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Converting the society list of dictionaries into a Pandas pandas dataframe:</span>
 
-<span class="nb">print</span> <span class="p">(</span><span class="s2">"Slack/Surplus"</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s1">':'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">constraint</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+<span class="n">socialResults</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">society</span><span class="p">)</span>
+<span class="n">socialResults</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[102]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>score</th>
+      <th>strategy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Amadeus</td>
+      <td>125</td>
+      <td>Scissors</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Ludwig</td>
+      <td>113</td>
+      <td>Spock</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Frederic</td>
+      <td>99</td>
+      <td>Paper</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Antonio</td>
+      <td>128</td>
+      <td>Spock</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[103]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Creating a variable to store the highest score:</span>
+
+<span class="n">winnerScore</span><span class="o">=</span><span class="n">socialResults</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="c1"># Including only the rows where the score column is equal to winnerScore:</span>
+
+<span class="n">socialResults</span><span class="p">[</span><span class="n">socialResults</span><span class="o">.</span><span class="n">score</span><span class="o">==</span><span class="n">winnerScore</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[103]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>score</th>
+      <th>strategy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>3</th>
+      <td>Antonio</td>
+      <td>128</td>
+      <td>Spock</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The final results of the simulation point out that, in this particular game, Antonio who chose the "Spock" strategy ended up to be the most successful with the highest score of 128 points, while Frederic playing the "Paper" strategy was the least gainful with 99 points.</p>
+<p>In the following, I'm determining the average score of the players who chose "Spock"  to see the overall performance of this strategy:</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[104]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Filtering the dataframe to only include rows with the "Spock" strategy:</span>
+
+<span class="n">spock_df</span> <span class="o">=</span> <span class="n">socialResults</span><span class="p">[</span><span class="n">socialResults</span><span class="p">[</span><span class="s1">'strategy'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Spock'</span><span class="p">]</span>
+
+<span class="c1"># Calculating the average score of the players - Ludwig and Antonio - who chose "Spock":</span>
+<span class="n">avg_score_spock</span> <span class="o">=</span> <span class="n">spock_df</span><span class="p">[</span><span class="s1">'score'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="c1"># Printing the result:</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Average score of players who chose "Spock":'</span><span class="p">,</span> <span class="n">avg_score_spock</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15261,10 +16060,7 @@ San_Francisco_Price = 0.0
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Slack/Surplus
-Price_Constraint:-450.0
-Cost_Constraint:0.0
-SD_Cost_Constraint:0.0
+<pre>Average score of players who chose &#34;Spock&#34;: 120.5
 </pre>
 </div>
 </div>
@@ -15280,8 +16076,6 @@ SD_Cost_Constraint:0.0
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Based on the above output, the company can gain a maximum revenue of 285,000 USD by selling tickets to San Diego at the price of 150 USD per ticket. However, the solution is still based on the unrealistic scenario that two other flights are operated at no cost with slack on the average price constraint.</p>
-<p>To achieve more realistic solutions, the problem would benefit from specifying additional conditions related to average cost composition. Otherwise, the current version expresses the average cost constraint only in terms of revenue which in turn is based on price, so the model optimizes by setting two of the input prices to zero.</p>
 
 </div>
 </div>
