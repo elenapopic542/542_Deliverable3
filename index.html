@@ -14726,10 +14726,13 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Defining the constraints:</span>
 
 <span class="c1"># Constraint 1: Average price is not higher than 200 USD. Below I use the reduced form of the equation: (SDP + SFP + LVP)/3&lt;=200</span>
+
 <span class="n">C1</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Price_Constraint"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">SDP</span> <span class="o">+</span> <span class="n">SFP</span> <span class="o">+</span> <span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span> 
+
 <span class="c1"># Constraint 2: The overall average cost is no more than 10 percent of revenue </span>
 <span class="c1"># as expressed by the equation: 0.10*1900*SDP + 0.12*700*SFP + 0.14*1000*LVP &lt;= 0.10(1900*SDP + 700*SFP + 1000*LVP), </span>
 <span class="c1"># reduced to 190*SDP + 84*SFP + 140*LVP ≤ 190*SDP + 70*SFP + 100*LVP, and finally to 14*SFP + 40*LVP ≤ 0 </span>
+
 <span class="n">C2</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Cost_Constraint"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">14</span><span class="o">*</span><span class="n">SFP</span> <span class="o">+</span> <span class="mi">40</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">LE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 
 </pre></div>
 
@@ -14923,9 +14926,13 @@ b) equalize cost per mile across flights using the data on flight mileage from t
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Adjusted constraints:</span>
+
 <span class="c1"># The overall average cost is no more than 14 percent of revenue:</span>
+
 <span class="n">C2_2</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Cost_Constraint_2"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">76</span><span class="o">*</span><span class="n">SDP</span> <span class="o">+</span> <span class="mi">14</span><span class="o">*</span><span class="n">SFP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">GE</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="c1"># The next set of constraints use the data on mileage and set the cost per mile to be equal across flights: 0.10*SDP/720=0.12*SFP/1500=0.14*LVP/1140 </span>
+
+<span class="c1"># The next set of constraints use the data on mileage and set the cost per mile to be equal across flights: 0.10*SDP/720=0.12*SFP/1500=0.14*LVP/1140</span>
+
 <span class="n">C3</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"CostperMile_Constraint_3"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">150</span><span class="o">*</span><span class="n">SDP</span> <span class="o">-</span> <span class="mf">86.4</span><span class="o">*</span><span class="n">SFP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">EQ</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">C4</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"CostperMile_Constraint_4"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">114</span><span class="o">*</span><span class="n">SDP</span> <span class="o">-</span> <span class="mf">100.8</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">EQ</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">C5</span> <span class="o">=</span> <span class="n">LpConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"CostperMile_Constraint_5"</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="mf">136.8</span><span class="o">*</span><span class="n">SFP</span> <span class="o">-</span> <span class="mi">210</span><span class="o">*</span><span class="n">LVP</span><span class="p">,</span> <span class="n">sense</span><span class="o">=</span><span class="n">EQ</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
